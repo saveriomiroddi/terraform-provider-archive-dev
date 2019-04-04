@@ -1,3 +1,4 @@
+go_import_path: github.com/terraform-providers/terraform-provider-archive
 dist: trusty
 sudo: required
 services:
