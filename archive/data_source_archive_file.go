@@ -26,6 +26,12 @@ func dataSourceFile() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 			},
+			"normalize_files_metadata": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				ForceNew: true,
+				Default:  false,
+			},
 			"source": {
 				Type:     schema.TypeSet,
 				Optional: true,
@@ -165,6 +171,7 @@ func expandStringList(configured []interface{}) []string {
 func archive(d *schema.ResourceData) error {
 	archiveType := d.Get("type").(string)
 	outputPath := d.Get("output_path").(string)
+	normalizeFilesMetadata := d.Get("normalize_files_metadata").(bool)
 
 	archiver := getArchiver(archiveType, outputPath)
 	if archiver == nil {
@@ -184,7 +191,7 @@ func archive(d *schema.ResourceData) error {
 			}
 		}
 	} else if file, ok := d.GetOk("source_file"); ok {
-		if err := archiver.ArchiveFile(file.(string)); err != nil {
+		if err := archiver.ArchiveFile(file.(string), normalizeFilesMetadata); err != nil {
 			return fmt.Errorf("error archiving file: %s", err)
 		}
 	} else if filename, ok := d.GetOk("source_content_filename"); ok {

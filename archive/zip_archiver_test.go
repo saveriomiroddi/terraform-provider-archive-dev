@@ -25,7 +25,7 @@ func TestZipArchiver_Content(t *testing.T) {
 func TestZipArchiver_File(t *testing.T) {
 	zipfilepath := "archive-file.zip"
 	archiver := NewZipArchiver(zipfilepath)
-	if err := archiver.ArchiveFile("./test-fixtures/test-file.txt"); err != nil {
+	if err := archiver.ArchiveFile("./test-fixtures/test-file.txt", false); err != nil {
 		t.Fatalf("unexpected error: %s", err)
 	}
 
@@ -41,7 +41,7 @@ func TestZipArchiver_FileModified(t *testing.T) {
 
 	var zip = func() {
 		archiver := NewZipArchiver(zipFilePath)
-		if err := archiver.ArchiveFile(toZipPath); err != nil {
+		if err := archiver.ArchiveFile(toZipPath, false); err != nil {
 			t.Fatalf("unexpected error: %s", err)
 		}
 	}

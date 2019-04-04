@@ -37,7 +37,7 @@ func (a *ZipArchiver) ArchiveContent(content []byte, infilename string) error {
 	return err
 }
 
-func (a *ZipArchiver) ArchiveFile(infilename string) error {
+func (a *ZipArchiver) ArchiveFile(infilename string, normalizeFilesMetadata bool) error {
 	fi, err := assertValidFile(infilename)
 	if err != nil {
 		return err
@@ -58,9 +58,18 @@ func (a *ZipArchiver) ArchiveFile(infilename string) error {
 		return fmt.Errorf("error creating file header: %s", err)
 	}
 	fh.Name = filepath.ToSlash(fi.Name())
-	fh.Method = zip.Deflate
+
 	// fh.Modified alone isn't enough when using a zero value
-	fh.SetModTime(time.Time{})
+	if normalizeFilesMetadata {
+		// Normalize the fields: no compression, so compressed stream is essentially a copy; fixed
+		// date; fixed file permissions.
+		fh.Method = zip.Store
+		fh.SetModTime(time.Date(1981, 4, 10, 0, 0, 0, 0, time.UTC))
+		fh.SetMode(0644)
+	} else {
+		fh.Method = zip.Deflate
+		fh.SetModTime(time.Time{})
+	}
 
 	f, err := a.writer.CreateHeader(fh)
 	if err != nil {
